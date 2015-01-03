@@ -31,14 +31,52 @@ public class cv {
 				  { 1.0f/3, 1.0f/3, 1.0f/3}
 		          },1,1); 
 	
+		 Kernel MinimumVarianceLaplacian = new Kernel(new float[][]{
+				  { 2.0f/3, -1.0f/3, 2.0f/3},
+				  { -1.0f/3,-4.0f/3, -1.0f/3},
+				  { 2.0f/3, -1.0f/3, 2.0f/3}
+		          },1,1); 
+		 
+		 Kernel LoGKernel = new Kernel(new float[][]{
+				 {   0,   0,   0,  -1,  -1,  -2,  -1,  -1,   0,   0,   0},
+				 {   0,   0,  -2,  -4,  -8,  -9,  -8,  -4,  -2,   0,   0},
+				 {   0,  -2,  -7, -15, -22, -23, -22, -15,  -7,  -2,   0},
+				 {  -1,  -4, -15, -24, -14,  -1, -14, -24, -15,  -4,  -1},
+				 {  -1,  -8, -22, -14,  52, 103,  52, -14, -22,  -8,  -1},
+				 {  -2,  -9, -23,  -1, 103, 178, 103,  -1, -23,  -9,  -2},
+				 {  -1,  -8, -22, -14,  52, 103,  52, -14, -22,  -8,  -1},
+				 {  -1,  -4, -15, -24, -14,  -1, -14, -24, -15,  -4,  -1},
+				 {   0,  -2,  -7, -15, -22, -23, -22, -15,  -7,  -2,   0},
+				 {   0,   0,  -2,  -4,  -8,  -9,  -8,  -4,  -2,   0,   0},
+				 {   0,   0,   0,  -1,  -1,  -2,  -1,  -1,   0,   0,   0},
+		 },5,5);
+		 
+		 Kernel DoGKernel = new Kernel(new float[][]{
+				 {  -1,  -3,  -4,  -6,  -7,  -8,  -7,  -6,  -4,  -3,  -1},
+				 {  -3,  -5,  -8, -11, -13, -13, -13, -11,  -8,  -5,  -3},
+				 {  -4,  -8, -12, -16, -17, -17, -17, -16, -12,  -8,  -4},
+				 {  -6, -11, -16, -16,   0,  15,   0, -16, -16, -11,  -6},
+				 {  -7, -13, -17,   0,  85, 160,  85,   0, -17, -13,  -7},
+				 {  -8, -13, -17,  15, 160, 283, 160,  15, -17, -13,  -8},
+				 {  -7, -13, -17,   0,  85, 160,  85,   0, -17, -13,  -7},
+				 {  -6, -11, -16, -16,   0,  15,   0, -16, -16, -11,  -6},
+				 {  -4,  -8, -12, -16, -17, -17, -17, -16, -12,  -8,  -4},
+				 {  -3,  -5,  -8, -11, -13, -13, -13, -11,  -8,  -5,  -3},
+				 {  -1,  -3,  -4,  -6,  -7,  -8,  -7,  -6,  -4,  -3,  -1},
+		 },5,5);
 		 
 		 ArrayList<Integer> originImg = GetByteData(fileName);
 		 ArrayList<Integer> LaplacianImg1 = CrossingEdgeDetector(originImg,headerLength,imageWidth,imageHeight,Laplacian1,15);
 		 ArrayList<Integer> LaplacianImg2 = CrossingEdgeDetector(originImg,headerLength,imageWidth,imageHeight,Laplacian2,15);
+		 ArrayList<Integer> MinimumVarianceLaplacianImg = CrossingEdgeDetector(originImg,headerLength,imageWidth,imageHeight,MinimumVarianceLaplacian,20);
+		 ArrayList<Integer> LoGImg = CrossingEdgeDetector(originImg,headerLength,imageWidth,imageHeight,LoGKernel,3000);
+		 ArrayList<Integer> DoGKernelImg = CrossingEdgeDetector(originImg,headerLength,imageWidth,imageHeight,DoGKernel,1);
 		 
-		 
-		 WriteOut(LaplacianImg1,"./assets/LaplacianImg1.im");
-		 WriteOut(LaplacianImg2,"./assets/LaplacianImg2.im");
+		 WriteOut(LaplacianImg1,"./assets/LaplacianImg1_15.im");
+		 WriteOut(LaplacianImg2,"./assets/LaplacianImg2_15.im");
+		 WriteOut(MinimumVarianceLaplacianImg,"./assets/MinimumVarianceLaplacianImg_20.im");
+		 WriteOut(LoGImg,"./assets/LoGImg_3000.im");
+		 WriteOut(DoGKernelImg,"./assets/DoGKernelImg_1.im");
 
 	}
 	
