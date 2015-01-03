@@ -19,16 +19,86 @@ public class cv {
 		 int imageHeight = 512;
 		 
 		 
-		/* Kernel RobertsKernelR1 = new Kernel(new float[][]{
-				  { -1,0},
-				  {0,1},
-				},0,0); */
+		 Kernel Laplacian1 = new Kernel(new float[][]{
+				  { 0, 1, 0},
+				  { 1,-4, 1},
+				  { 0, 1, 0}
+		          },1,1); 
+		 
+		 Kernel Laplacian2 = new Kernel(new float[][]{
+				  { 1.0f/3, 1.0f/3, 1.0f/3},
+				  { 1.0f/3,-8.0f/3, 1.0f/3},
+				  { 1.0f/3, 1.0f/3, 1.0f/3}
+		          },1,1); 
 	
 		 
 		 ArrayList<Integer> originImg = GetByteData(fileName);
+		 ArrayList<Integer> LaplacianImg1 = CrossingEdgeDetector(originImg,headerLength,imageWidth,imageHeight,Laplacian1,15);
+		 ArrayList<Integer> LaplacianImg2 = CrossingEdgeDetector(originImg,headerLength,imageWidth,imageHeight,Laplacian2,15);
+		 
+		 
+		 WriteOut(LaplacianImg1,"./assets/LaplacianImg1.im");
+		 WriteOut(LaplacianImg2,"./assets/LaplacianImg2.im");
 
-		 /*WriteOut(Roberts,"./assets/Roberts.im");*/
-
+	}
+	
+	public static ArrayList<Integer> CrossingEdgeDetector(ArrayList<Integer> origin,int headerLength, int width, int height,Kernel kernel,int threshold)
+	{
+		ArrayList<Integer> results = InitWhite(origin,headerLength,width,height);
+		ArrayList<Integer> temp = InitWhite(origin,headerLength,width,height);
+		
+		for(int y = 0 ; y < height; y++)
+		{
+			for(int x = 0 ; x < width ; x++)
+			{
+				float tempValue = CalculateKernel(origin,headerLength,width,height,kernel,x,y);
+				temp.set(headerLength+y*width+x,(int)tempValue);
+			}
+		}
+		
+		for(int y = 0 ; y < height; y++)
+		{
+			for(int x = 0 ; x < width ; x++)
+			{	
+				for(int y2 = -1; y2 < 2 ; y2++)
+				{
+					//System.out.println(x+":"+y);
+					
+					for(int x2 = -1; x2 < 2 ; x2++)
+					{
+						if(isDifferenceGreaterThan(temp,headerLength,width,height,x,y,x2,y2,threshold))
+						{
+							results.set(headerLength+y*width+x,0);
+						}
+					}
+				}
+			}
+		}
+	
+		return results;
+	}
+	
+	public static boolean isDifferenceGreaterThan(ArrayList<Integer> origin,int headerLength, int width, int height,int x,int y,int x2,int y2,int threshold)
+	{
+		int newIndexX = x + x2;
+		int newIndexY = y + y2;
+		
+		if(newIndexX < 0) return false;
+		if(newIndexY < 0) return false;
+		if(newIndexX >= width) return false;
+		if(newIndexY >= height) return false;
+		
+		int originValue = origin.get(headerLength+width*y+x);
+		int nearValue = origin.get(headerLength+width*newIndexY+newIndexX);
+		
+		if(originValue > threshold && nearValue < -threshold)
+		{
+			return true;
+		}
+		else
+		{
+			return false;
+		}
 	}
 	
 	public static ArrayList<Integer> DetectGradientEdgeWithMax(ArrayList<Integer> origin,int headerLength, int width, int height,Kernel[] kernels,int threshold)
@@ -123,7 +193,7 @@ public class cv {
 		{
 			for(int j = 0 ; j<height ; j++)
 			{
-				results.add(0);
+				results.add(255);
 			}
 		}
 		
